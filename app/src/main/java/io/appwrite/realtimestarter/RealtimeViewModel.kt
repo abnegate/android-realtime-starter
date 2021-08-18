@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.gson.Gson
 import com.google.gson.JsonParseException
 import com.google.gson.JsonSyntaxException
 import io.appwrite.Client
@@ -15,12 +16,15 @@ import io.appwrite.services.Database
 import io.appwrite.services.Realtime
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.Response
 
 class RealtimeViewModel : ViewModel() {
 
-    private val collectionId = "611b6bfb93f41" // Replace with your own products collection id
-    private val userEmail = "jake@appwrite.io" // Replace with your own user email
-    private val userPassword = "password"
+    private val endpoint = "https://realtime.appwrite.org/v1" // Replace with your endpoint
+    private val projectId = "611cc1d3aeb03"         // Replace with your project ID
+    private val collectionId = "611cd1f63ddac"      // Replace with your product collection ID
+    private val userEmail = "jake@appwrite.io"      // Replace with your user email
+    private val userPassword = "password"           // Replace with your user password
 
     private val realtime by lazy {
         Realtime(client!!)
@@ -42,8 +46,8 @@ class RealtimeViewModel : ViewModel() {
     fun subscribeToProducts(context: Context) {
         if (client == null) {
             client = Client(context)
-                .setEndpoint("http://192.168.20.4/v1") // Replace with your own endpoint
-                .setProject("611b6959a3afb") // Replace with your project id
+                .setEndpoint(endpoint)
+                .setProject(projectId)
                 .setSelfSigned(true)
         }
 
@@ -51,7 +55,7 @@ class RealtimeViewModel : ViewModel() {
             // Create a session so that we are authorized for realtime
             account.createSession(userEmail, userPassword)
 
-            // Attach an error logger to the realtime instace
+            // Attach an error logger to the realtime instance
             realtime.doOnError {
                 Log.e("Realtime", it.message.toString())
             }
@@ -70,15 +74,16 @@ class RealtimeViewModel : ViewModel() {
                     return@subscribe
                 }
 
+
                 // Post the new product to stream observers
                 _productStream.postValue(product)
             }
 
-            // Useful for testing; insert 100 products while subscribed
+            // For testing; insert 100 products while subscribed
             for (i in 1 until 100) {
                 db.createDocument(
                     collectionId,
-                    """{ "name": "iPhone $i", "sku":"iphone$i", "price": $i, "image_url": "https://dummyimage.com/600x400/cde/fff" }""",
+                    """{ "name": "iPhone $i", "sku":"iphone$i", "price": $i, "imageUrl": "https://dummyimage.com/600x400/cde/fff" }""",
                     listOf("*"),
                     listOf("*")
                 )

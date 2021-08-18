@@ -19,14 +19,12 @@ class RealtimeActivity : AppCompatActivity() {
             viewModel.subscribeToProducts(this)
         }
 
-        val products = mutableListOf<Product>()
-        val adapter = ProductAdapter(products)
+        val adapter = ProductAdapter()
         val recycler = findViewById<RecyclerView>(R.id.recyclerProducts)
         recycler.adapter = adapter
 
         viewModel.productStream.observe(this) {
-            products.add(it)
-            adapter.submitList(products.toList())
+            adapter.submitNext(it)
         }
     }
 }
