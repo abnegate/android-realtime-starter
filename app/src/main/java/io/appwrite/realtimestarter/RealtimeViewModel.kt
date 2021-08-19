@@ -20,11 +20,11 @@ import okhttp3.Response
 
 class RealtimeViewModel : ViewModel() {
 
-    private val endpoint = "https://realtime.appwrite.org/v1" // Replace with your endpoint
-    private val projectId = "611cc1d3aeb03"         // Replace with your project ID
-    private val collectionId = "611cd1f63ddac"      // Replace with your product collection ID
-    private val userEmail = "jake@appwrite.io"      // Replace with your user email
-    private val userPassword = "password"           // Replace with your user password
+    private val endpoint = "YOUR_ENDPOINT"          // Replace with your endpoint
+    private val projectId = "YOUR_PROJECT_ID"       // Replace with your project ID
+    private val collectionId = "YOUR_COLLECTION_ID" // Replace with your product collection ID
+    private val userEmail = "YOUR_USER_EMAIL"       // Replace with your user email
+    private val userPassword = "YOUR_USER_PASSWORD" // Replace with your user password
 
     private val realtime by lazy {
         Realtime(client!!)
