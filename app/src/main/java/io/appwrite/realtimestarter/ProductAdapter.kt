@@ -34,8 +34,9 @@ class ProductAdapter :
         val index = current.indexOf(product)
         if (index != -1) {
             current[index] = product
+        } else {
+            current.add(product)
         }
-        current.add(product)
         submitList(current)
     }
 }
