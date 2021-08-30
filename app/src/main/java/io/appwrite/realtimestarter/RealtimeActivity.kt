@@ -26,6 +26,16 @@ class RealtimeActivity : AppCompatActivity() {
         viewModel.productStream.observe(this) {
             adapter.submitNext(it)
         }
+        viewModel.productDeleted.observe(this) {
+            adapter.submitDeleted(it)
+        }
+
+        lifecycle.addObserver(viewModel)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        lifecycle.removeObserver(viewModel)
     }
 }
 

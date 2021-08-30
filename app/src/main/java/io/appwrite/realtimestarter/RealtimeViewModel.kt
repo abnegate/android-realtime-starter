@@ -45,30 +45,28 @@ class RealtimeViewModel : ViewModel(), LifecycleObserver {
             // Attach an error logger to our realtime instance
             realtime.doOnError { Log.e(this::class.java.name, it.message.toString()) }
 
-                // Parse the incoming realtime update to a product from JSON
-                val product = try {
-                    it.toJson().fromJson(Product::class.java)
-                } catch (ex: JsonParseException) {
-                    Log.e("Parse product", ex.message.toString())
-                    return@subscribe
-                } catch (ex: JsonSyntaxException) {
-                    Log.e("Parse product", ex.message.toString())
-                    return@subscribe
-                }
+            // Subscribe to document events for our collection and attach the handle product callback
+            subscription = realtime.subscribe(
+                "collections.${collectionId}.documents",
+                payloadType = Product::class.java,
+                callback = ::handleProductMessage
+            )
 
+            //createDummyProducts()
+        }
+    }
 
-                // Post the new product to stream observers
-                _productStream.postValue(product)
+    private fun handleProductMessage(message: RealtimeResponseEvent<Product>) {
+        // Because we set the `payloadType` to [`Product`](https://github.com/abnegate/android-realtime-starter/blob/main/app/src/main/java/io/appwrite/realtimestarter/Product.kt), `message.payload` is of type `Product`.
+        when (message.event) {
+            in
+            "database.documents.create",
+            "database.documents.update" -> {
+                // The [`ProductAdapter`](https://github.com/abnegate/android-realtime-starter/blob/main/app/src/main/java/io/appwrite/realtimestarter/ProductAdapter.kt) will handle the diff for an update to an existing product.
+                _productStream.postValue(message.payload!!)
             }
-
-            // For testing; insert 100 products while subscribed
-            for (i in 1 until 100) {
-                db.createDocument(
-                    collectionId,
-                    """{ "name": "iPhone $i", "sku":"iphone$i", "price": $i, "imageUrl": "https://dummyimage.com/600x400/cde/fff" }""",
-                    listOf("*"),
-                    listOf("*")
-                )
+            "database.documents.delete" -> {
+                _productDeleted.postValue(message.payload!!)
             }
         }
     }
