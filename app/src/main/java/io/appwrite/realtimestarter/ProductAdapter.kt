@@ -31,12 +31,22 @@ class ProductAdapter :
 
     fun submitNext(product: Product) {
         val current = currentList.toMutableList()
-        val index = current.indexOf(product)
+        val index = currentList.indexOfFirst {
+            it.sku == product.sku
+        }
         if (index != -1) {
             current[index] = product
         } else {
             current.add(product)
         }
         submitList(current)
+    }
+
+    fun submitDeleted(product: Product) {
+        submitList(
+            currentList.toMutableList().apply {
+                remove(product)
+            }
+        )
     }
 }
